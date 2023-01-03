@@ -1,11 +1,11 @@
-package main
+package channel
 
 /*
  * @Author: wenzhicong wenzhicong@jasonanime.com
  * @Date: 2022-12-26 11:16:22
  * @LastEditors: wenzhicong wenzhicong@jasonanime.com
- * @LastEditTime: 2022-12-27 10:08:58
- * @FilePath: /channel/main.go
+ * @LastEditTime: 2023-01-03 16:23:19
+ * @FilePath: /goStudy/channel/channel_test.go
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 
@@ -13,16 +13,19 @@ import (
 	"fmt"
 	"sync"
 	"sync/atomic"
+	"testing"
 	"time"
 )
 
-func main() {
+func TestChannel(t *testing.T) {
 	num := 1000000
+	//利用channel来计算num内的质数
 	startTime := time.Now().UnixNano() / int64(time.Millisecond)
 	channelAdd(num, 4)
 	endTime := time.Now().UnixNano() / int64(time.Millisecond)
 	fmt.Println(endTime - startTime)
 
+	//利用for循环来计算num内的质数
 	startTime = time.Now().UnixNano() / int64(time.Millisecond)
 	forAdd(num)
 	endTime = time.Now().UnixNano() / int64(time.Millisecond)
@@ -42,8 +45,9 @@ func channelAdd(n int, c int) int64 {
 				if !ok {
 					break
 				}
+				//判断是否质数
 				if isPrime(data) {
-					// 数据争用,使用atomic
+					//data race 数据争用,使用atomic
 					atomic.AddInt64(&addResult, 1)
 				}
 			}
