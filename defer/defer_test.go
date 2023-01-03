@@ -1,15 +1,16 @@
 package main
 
-
 import (
 	"fmt"
 	"testing"
 )
 
+/*
+defer 在程序返回时执行，后入先出，
+*/
 func TestDefer(t *testing.T) {
 	// fmt.Println("return:", b())
 	fmt.Println("return:", *(c()))
-
 }
 
 func b() (i int) {
