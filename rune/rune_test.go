@@ -13,7 +13,7 @@ func TestRune(t *testing.T) {
 	byteLen := len(str)
 	fmt.Println("字节长度，", byteLen)
 	strRune := []rune(str)
-	strLen := len(strRune)
-	fmt.Println("字符长度，", strLen)
+	strLen := len(strRune)       //4
+	fmt.Println("字符长度，", strLen) //
 	fmt.Println("字符截取，", string(strRune[:2]))
 }
