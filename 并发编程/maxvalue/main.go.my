@@ -1,0 +1,42 @@
+package main
+
+import (
+	"fmt"
+	"math/rand"
+	"sync"
+	"time"
+)
+
+var max int
+var lock sync.Mutex
+
+func main() {
+	var total int = 1000
+	var array []int
+	for i := 0; i < total; i++ {
+		rand.Seed(time.Now().UnixMicro())
+		array = append(array, rand.Intn(1000000))
+	}
+	var sync sync.WaitGroup
+	for i := 0; i < total; i++ {
+		sync.Add(1)
+		go func(data int) {
+			defer func() {
+				sync.Done()
+			}()
+			cMax(data)
+		}(array[i])
+	}
+	sync.Wait()
+	fmt.Println(max)
+
+}
+
+func cMax(x int) {
+	lock.Lock()
+	if max < x {
+		max = x
+	}
+	fmt.Println(max)
+	lock.Unlock()
+}
