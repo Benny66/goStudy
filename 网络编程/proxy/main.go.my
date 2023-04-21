@@ -1,0 +1,49 @@
+package main
+
+import (
+	"flag"
+	"fmt"
+	"log"
+	"net/http"
+	"net/http/httputil"
+	"net/url"
+)
+
+func main() {
+	// 解析命令行参数
+	listenPort := flag.Int("listen", 8080, "the port to listen on")
+	targetUrl := flag.String("target", "", "the target URL to proxy")
+	flag.Parse()
+
+	if *targetUrl == "" {
+		log.Fatal("target url must be specified")
+	}
+
+	// 解析目标URL
+	target, err := url.Parse(*targetUrl)
+	if err != nil {
+		log.Fatalf("failed to parse target URL: %v", err)
+	}
+	// 创建反向代理器
+	proxy := httputil.NewSingleHostReverseProxy(target)
+
+	// 实现自定义的Director函数，用于修改请求信息
+	director := func(req *http.Request) {
+		req.URL.Scheme = target.Scheme
+		req.URL.Host = target.Host
+		req.Header.Set("X-Forwarded-Host", req.Header.Get("Host"))
+		req.Host = target.Host
+	}
+	proxy.Director = director
+
+	// 启动HTTP服务器
+	http.HandleFunc("/Hello", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Hello, World!")
+	})
+	http.Handle("/", proxy)
+
+	log.Printf("listening on :%d...\n", *listenPort)
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", *listenPort), nil); err != nil {
+		log.Fatal(err)
+	}
+}

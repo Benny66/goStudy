@@ -1,0 +1,38 @@
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+func main() {
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	m := make(map[string]int)
+
+	// 启动 10 个 goroutine 并发写入 map
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			mu.Lock()
+			m[fmt.Sprintf("key%d", i)] = i
+			mu.Unlock()
+		}(i)
+	}
+
+	// 启动 10 个 goroutine 并发读取 map
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			mu.Lock()
+			for k, v := range m {
+				fmt.Printf("key: %s, value: %d\n", k, v)
+			}
+			mu.Unlock()
+		}()
+	}
+
+	wg.Wait()
+}
